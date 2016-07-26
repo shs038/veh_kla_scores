@@ -1,3 +1,4 @@
+```
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -5,27 +6,39 @@ import seaborn as sns
 import scipy
 from scipy import stats
 %matplotlib inline
+```
 #read in data
+```
 motif_scores_df = pd.read_csv('/home/shs038/veh_kla/motif_scores_C57BL6J.tsv', sep='\t')
 motif_scores_df.index = motif_scores_df['ID'].values
 del motif_scores_df['ID']
+```
 #vehicle scores
+```
 veh_df=motif_scores_df[motif_scores_df['Factors'].str.contains('c57bl6_atac_veh')]
 del veh_df['Factors']
 del veh_df['chr']
+```
 #KLA scores 
+```
 kla_df=motif_scores_df[motif_scores_df['Factors'].str.contains('c57bl6_atac_kla')]
 del kla_df['Factors']
 del kla_df['chr']
+```
 #normalized by max 
+```
 max_veh=veh_df.max(axis=0)
 max_kla=kla_df.max(axis=0)
 veh_normalized_df=veh_df/max_veh
 kla_normalized_df=kla_df/max_kla
+```
 #remove negative value
+```
 veh_normalized_df[veh_normalized_df<0]=0
 kla_normalized_df[kla_normalized_df<0]=0
-#calculate correlation coefficient 
+```
+#function to calculate correlation coefficient 
+```
 def find_correlation(df):
     '''
     input: a dataframe contains all motifs scores
@@ -65,17 +78,28 @@ def reshape_correlation(df):
     #reshape the dataframe
     reshaped_df=pd.DataFrame({'Correlation': Correlation}, index=Pairs)
     return reshaped_df
+```
+#calculate correlation coefficient 
+```
 veh_correlation=find_correlation(veh_normalized_df)
 kla_correlation=find_correlation(kla_normalized_df)
 veh_correlation_reshaped=reshape_correlation(veh_correlation)
 kla_correlation_reshaped=reshape_correlation(kla_correlation)
+```
 #compare correlation coefficient of motif paris under veh and kla treatment
+```
 correlation_df=pd.concat([veh_correlation_reshaped, kla_correlation_reshaped], axis=1)
 correlation_df.columns = ['veh', 'kla']
 correlation_df['vel-kla']=correlation_df['veh']-correlation_df['kla']
+```
 #plot difference
+```
 sns.distplot(correlation_df['vel-kla'])
 plt.ylabel('Frequency')
 plt.xlabel('vel-kla')
 plt.title('Motif Correlation Difference under vel and kal') 
+```
+#show significant difference
+```
 correlation_df[(correlation_df['vel-kla'].abs() > 0.2) ].sort('vel-kla', ascending=False)
+```
