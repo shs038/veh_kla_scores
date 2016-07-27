@@ -96,12 +96,22 @@ correlation_df=pd.concat([veh_correlation, kla_correlation], axis=1)
 correlation_df.columns = ['veh', 'kla']
 correlation_df['vel-kla']=correlation_df['veh']-correlation_df['kla']
 ```
-#plot difference
+#plot motif correlation
 ```
-sns.distplot(correlation_df['vel-kla'])
+sns.distplot(correlation_df['veh'])
 plt.ylabel('Frequency')
-plt.xlabel('vel-kla')
-plt.title('Motif Correlation Difference under vel and kal') 
+plt.xlabel('Motif Correlation')
+plt.title('veh') 
+plt.show()
+sns.distplot(correlation_df['kla'])
+plt.ylabel('Frequency')
+plt.xlabel('Motif Correlation')
+plt.title('kla')
+plt.show()
+sns.distplot(correlation_df['veh-kla'])
+plt.ylabel('Frequency')
+plt.xlabel('Motif Correlation difference')
+plt.title('veh-kla') 
 ```
 #show significant difference
 ```
