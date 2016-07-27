@@ -32,10 +32,24 @@ max_kla=kla_df.max(axis=0)
 veh_normalized_df=veh_df/max_veh
 kla_normalized_df=kla_df/max_kla
 ```
-#remove negative value
+#remove negative value and NaN
 ```
 veh_normalized_df[veh_normalized_df<0]=0
 kla_normalized_df[kla_normalized_df<0]=0
+veh_normalized_plot=np.nan_to_num(veh_normalized_df)
+kla_normalized_plot=np.nan_to_num(kla_normalized_df)
+```
+#plot normalized motif scores
+```
+sns.distplot(veh_normalized_plot[veh_normalized_plot!=0])
+plt.ylabel('Frequency')
+plt.xlabel('motif scores')
+plt.title('veh')
+plt.show()
+sns.distplot(kla_normalized_plot[kla_normalized_plot!=0])
+plt.ylabel('Frequency')
+plt.xlabel('motif scores')
+plt.title('kla')
 ```
 #function to calculate correlation coefficient 
 ```
@@ -57,24 +71,16 @@ def find_correlation(df):
             #calculate correlation
             coef=np.corrcoef(motif_paris.ix[:,0],motif_paris.ix[:,1])
             correlation_df.ix[i,j]=coef[0,1]
-    return correlation_df
-def reshape_correlation(df):
-    '''
-    input:a 196*196 pandas dataframe contains correlation coefficient of each motif pair
-    output: a reshaped pandas dataframe contains the same data but with 
-            columns: correlation, index:motif pair
-    '''
-    motifs = df.columns.values
+    #reshape dataframe
     Pairs=[]
     Correlation=[]
-
     #loop in part of count data that contain meaningful correlation
-    for i in range (df.shape[1]-1):
-        for j in range (i+1,df.shape[1]):
+    for i in range (correlation_df.shape[1]-1):
+        for j in range (i+1,correlation_df.shape[1]):
             #put motif pair and correlation into the empty list
             motif_pairs=(motifs[i],motifs[j])
             Pairs.append(motif_pairs)
-            Correlation.append(df.ix[i,j])
+            Correlation.append(correlation_df.ix[i,j])
     #reshape the dataframe
     reshaped_df=pd.DataFrame({'Correlation': Correlation}, index=Pairs)
     return reshaped_df
@@ -83,12 +89,10 @@ def reshape_correlation(df):
 ```
 veh_correlation=find_correlation(veh_normalized_df)
 kla_correlation=find_correlation(kla_normalized_df)
-veh_correlation_reshaped=reshape_correlation(veh_correlation)
-kla_correlation_reshaped=reshape_correlation(kla_correlation)
 ```
 #compare correlation coefficient of motif paris under veh and kla treatment
 ```
-correlation_df=pd.concat([veh_correlation_reshaped, kla_correlation_reshaped], axis=1)
+correlation_df=pd.concat([veh_correlation, kla_correlation], axis=1)
 correlation_df.columns = ['veh', 'kla']
 correlation_df['vel-kla']=correlation_df['veh']-correlation_df['kla']
 ```
